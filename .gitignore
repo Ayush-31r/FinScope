@@ -1,8 +1,15 @@
+# Data
 /data
+
+#Environment
 .env
+
+#Python
 __pycache__/
 *.pyc
 *.pyo
 venv/
 .venv/
+
+#Streamlit
 .streamlit/secrets.toml
