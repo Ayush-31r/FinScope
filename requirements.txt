@@ -5,8 +5,10 @@ langchain-community
 sentence-transformers
 faiss-cpu
 yfinance
-duckduckgo-search
+ddgs
 streamlit
 python-dotenv
 requests
 sec-edgar-downloader
+beautifulsoup4
+requests

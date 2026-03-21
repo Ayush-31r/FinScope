@@ -1,5 +1,4 @@
 import yfinance as yf,json,os
-from state import AgentState
 from langchain_groq import ChatGroq
 from langchain_core.messages import SystemMessage, HumanMessage
 from config import GROQ_API_KEY, MODEL_NAME
