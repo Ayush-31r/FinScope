@@ -8,7 +8,7 @@ const AGENTS = [
   { id: "risk", label: "Risk Scoring",   tag: "03", tech: "yFinance + Groq",    desc: "Computes volatility metrics, beta, and generates an LLM-powered risk assessment.", color: "#7B6EA0" },
 ];
 
-const QUICK = ["AAPL", "TSLA", "MSFT", "NVDA", "AMZN", "GOOGL"];
+const QUICK = ["AAPL", "TSLA", "MSFT", "NVDA", "AMZN", "GOOGL", "META", "JPM", "GS"];
 const STACK = ["LangGraph", "Groq / Llama 3.3", "FAISS", "HuggingFace", "yFinance", "EDGAR"];
 
 function parseBrief(brief) {
