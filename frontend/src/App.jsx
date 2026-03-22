@@ -13,13 +13,13 @@ const STACK = ["LangGraph", "Groq / Llama 3.3", "FAISS", "HuggingFace", "yFinanc
 
 function parseBrief(brief) {
   if (!brief) return [];
-  const re = /(\d+)\.\s+([^\n:]+):([\s\S]*?)(?=\d+\.\s|\s*$)/g;
+  const re = /(\d+)\.\s+([^—\n]+?)\s+[—-]\s+([\s\S]*?)(?=\d+\.\s|\s*$)/g;
   const sections = [];
   let m;
   while ((m = re.exec(brief)) !== null)
     sections.push({ num: m[1], title: m[2].trim(), body: m[3].trim() });
   if (!sections.length)
-    return brief.split(/\n\n+/).filter(Boolean).map((b, i) => ({ num: i+1, title: `Section ${i+1}`, body: b.trim() }));
+    return brief.split(/\n\n+/).filter(Boolean).map((b, i) => ({ title: `Section ${i+1}`, body: b.trim() }));
   return sections;
 }
 
