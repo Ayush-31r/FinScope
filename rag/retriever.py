@@ -10,6 +10,8 @@ _REPO_ROOT = Path(__file__).resolve().parent.parent  # rag/retriever.py → rag/
 INDEX_DIR = _REPO_ROOT / "data" / "indexes"
 
 def retrieve(ticker, query, k=3):
+    index_path = INDEX_DIR / f"{ticker}.index"
+    print(f"DEBUG checking: {index_path} | exists: {index_path.exists()}", flush=True)
     model = SentenceTransformer("all-MiniLM-L6-v2")
 
     index_path = INDEX_DIR / f"{ticker}.index"
