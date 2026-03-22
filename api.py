@@ -12,12 +12,19 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, field_validator
 
-# ── Import your existing pipeline ──────────────────────────────────────────────
-# Adjust this import to match wherever you compile your StateGraph
-from main import build_graph          # e.g. returns a compiled LangGraph app
-
+# ── Logging FIRST, before any project imports ──────────────────────────────────
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+logger.info("=== IMPORT START ===")
+
+try:
+    logger.info("Importing build_graph (triggers all node imports)...")
+    from main import build_graph
+    logger.info("=== ALL IMPORTS OK ===")
+except Exception as e:
+    logger.exception("=== IMPORT CRASHED ===")
+    raise
 
 # ── Lifespan: compile graph once at startup ────────────────────────────────────
 graph = None
@@ -39,8 +46,6 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# Allow all origins for now; tighten to your Vercel domain in production
-# e.g. allow_origins=["https://finscope.vercel.app"]
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -69,8 +74,8 @@ class AgentStatus(BaseModel):
 
 class AnalyzeResponse(BaseModel):
     ticker: str
-    brief: str                  # full analyst brief from synthesizer
-    agent_status: AgentStatus   # what each node returned (summary line)
+    brief: str
+    agent_status: AgentStatus
     elapsed_seconds: float
 
 # ── Endpoint ───────────────────────────────────────────────────────────────────
@@ -83,7 +88,6 @@ async def analyze(req: AnalyzeRequest):
     logger.info("Received request for %s", ticker)
     t0 = time.time()
 
-    # Matches AgentState exactly (state.py)
     initial_state = {
         "ticker": ticker,
         "company_name": None,
@@ -100,14 +104,12 @@ async def analyze(req: AnalyzeRequest):
         logger.exception("Pipeline error for %s", ticker)
         raise HTTPException(status_code=500, detail=f"Pipeline error: {exc}")
 
-    # Surface any pipeline-level errors stored in state
     if final_state.get("errors"):
         raise HTTPException(status_code=422, detail="; ".join(final_state["errors"]))
 
     elapsed = round(time.time() - t0, 2)
     logger.info("Analysis for %s completed in %.1fs", ticker, elapsed)
 
-    # news_result and risk_data are dicts — extract a summary line for the frontend
     def _dict_summary(d) -> str:
         if not d:
             return "No output"
@@ -134,7 +136,7 @@ async def analyze(req: AnalyzeRequest):
         elapsed_seconds=elapsed,
     )
 
-# ── Health check (Render free tier pings this) ─────────────────────────────────
+# ── Health check ───────────────────────────────────────────────────────────────
 @app.get("/health")
 async def health():
     return {"status": "ok", "pipeline_ready": graph is not None}
