@@ -148,14 +148,47 @@ export default function App() {
   const abort = useRef(null);
 
   const run = async (sym) => {
-    const t = (sym ?? ticker).trim().toUpperCase();
-    if (!t) return;
-    setPhase("running"); setError(""); setResult(null); setShowRaw(false);
-    setAgentPhase({ news: "idle", rag: "idle", risk: "idle" });
-    setAgentStatus({ news: "", rag: "", risk: "" });
-    [120, 700, 1300].forEach((delay, i) =>
-      setTimeout(() => setAgentPhase(p => ({ ...p, [AGENTS[i].id]: "running" })), delay));
-    abort.current = new AbortController();
+  const t = (sym ?? ticker).trim().toUpperCase();
+  if (!t) return;
+  setPhase("running"); setError(""); setResult(null); setShowRaw(false);
+  setAgentPhase({ news: "idle", rag: "idle", risk: "idle" });
+  setAgentStatus({ news: "", rag: "", risk: "" });
+  [120, 700, 1300].forEach((delay, i) =>
+    setTimeout(() => setAgentPhase(p => ({ ...p, [AGENTS[i].id]: "running" })), delay));
+  abort.current = new AbortController();
+  const t0 = Date.now();
+
+  try {
+    // Try streaming first
+    const res = await fetch(`${API_BASE}/analyze/stream`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ticker: t }),
+      signal: abort.current.signal,
+    });
+
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+    setAgentPhase({ news: "done", rag: "done", risk: "done" });
+    setAgentStatus({ news: "complete", rag: "complete", risk: "complete" });
+    setPhase("done");
+    setResult({ ticker: t, brief: "", elapsed_seconds: 0, agent_status: { news: "complete", rag: "complete", risk: "complete" } });
+
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    let brief = "";
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      brief += decoder.decode(value);
+      setResult(r => ({ ...r, brief, elapsed_seconds: ((Date.now() - t0) / 1000).toFixed(1) }));
+    }
+
+  } catch (streamErr) {
+    if (streamErr.name === "AbortError") return;
+
+    // Fallback to original endpoint
     try {
       const res = await fetch(`${API_BASE}/analyze`, {
         method: "POST",
@@ -173,7 +206,8 @@ export default function App() {
       setAgentPhase({ news: "error", rag: "error", risk: "error" });
       setError(e.message); setPhase("error");
     }
-  };
+  }
+};
 
   const sections = result ? parseBrief(result.brief) : [];
   const active = phase === "running" || phase === "done";

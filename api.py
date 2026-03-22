@@ -6,6 +6,7 @@ POST /analyze  →  runs the LangGraph pipeline and returns the analyst brief
 import os
 import time
 import logging
+import asyncio
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, HTTPException
@@ -79,6 +80,54 @@ class AnalyzeResponse(BaseModel):
     elapsed_seconds: float
 
 # ── Endpoint ───────────────────────────────────────────────────────────────────
+from fastapi.responses import StreamingResponse
+
+@app.post("/analyze/stream")
+async def analyze_stream(req: AnalyzeRequest):
+    if graph is None:
+        raise HTTPException(status_code=503, detail="Pipeline not ready yet")
+
+    ticker = req.ticker
+    initial_state = {
+        "ticker": ticker,
+        "company_name": None,
+        "news_result": None,
+        "rag_context": None,
+        "risk_data": None,
+        "analyst_brief": None,
+        "errors": [],
+    }
+
+    async def generate():
+        try:
+            # Run orchestrator, news, rag, risk first
+            final_state = await asyncio.to_thread(graph.invoke, initial_state)
+            
+            # Stream the synthesizer response
+            news = final_state.get("news_result", [])
+            rag = final_state.get("rag_context", "No SEC data available")
+            risk = final_state.get("risk_data", {})
+
+            from langchain_groq import ChatGroq
+            from langchain_core.messages import SystemMessage, HumanMessage
+            from config import MODEL_NAME, GROQ_API_KEY, MAX_TOKENS
+
+            llm = ChatGroq(api_key=GROQ_API_KEY, model=MODEL_NAME, max_tokens=MAX_TOKENS)
+
+            systemPrompt = """You are a quantitative financial analyst..."""  # same as synthesizer
+            userPrompt = f"""Give a analyst brief for the stock with
+                news summary : {news}
+                SEC-Filings : {rag}
+                risk assesment : {risk}"""
+
+            async for chunk in llm.astream([SystemMessage(content=systemPrompt), HumanMessage(content=userPrompt)]):
+                yield chunk.content
+
+        except Exception as e:
+            yield f"ERROR: {e}"
+
+    return StreamingResponse(generate(), media_type="text/plain")
+
 @app.post("/analyze", response_model=AnalyzeResponse)
 async def analyze(req: AnalyzeRequest):
     if graph is None:
