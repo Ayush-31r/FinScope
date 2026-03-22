@@ -13,7 +13,7 @@ const STACK = ["LangGraph", "Groq / Llama 3.3", "FAISS", "HuggingFace", "yFinanc
 
 function parseBrief(brief) {
   if (!brief) return [];
-  const re = /(\d+)\.\s+([^—\n]+?)\s+[—-]\s+([\s\S]*?)(?=\d+\.\s|\s*$)/g;
+  const re = /(\d+)\.\s+([^—\-:\n]+?)\s*[—\-:]\s*([\s\S]*?)(?=\d+\.\s|\s*$)/g;
   const sections = [];
   let m;
   while ((m = re.exec(brief)) !== null)
