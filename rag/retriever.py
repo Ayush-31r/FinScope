@@ -3,6 +3,9 @@ import faiss
 import pickle
 from sentence_transformers import SentenceTransformer
 from rag.build_index import build_save_index
+print(f"CWD: {os.getcwd()}", flush=True)
+print(f"Files in data/indexes/: {os.listdir('data/indexes/') if os.path.exists('data/indexes/') else 'DIRECTORY NOT FOUND'}", flush=True)
+
 
 def retrieve(ticker, query, k=5):
     model = SentenceTransformer("all-MiniLM-L6-v2")
