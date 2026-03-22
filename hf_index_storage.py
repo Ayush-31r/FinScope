@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 HF_TOKEN        = os.environ.get("HF_TOKEN", "")
 HF_REPO_ID      = os.environ.get("HF_REPO_ID", "")
-LOCAL_INDEX_DIR = Path(__file__).parent / "data" / "indexes"
+LOCAL_INDEX_DIR = Path(__file__).resolve().parent / "data" / "indexes"
 REPO_FOLDER     = "indexes"
 REPO_TYPE       = "dataset"
 

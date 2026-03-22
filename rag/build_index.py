@@ -4,9 +4,11 @@ import pickle
 from bs4 import BeautifulSoup
 from sentence_transformers import SentenceTransformer
 from langchain_text_splitters import RecursiveCharacterTextSplitter
+from pathlib import Path
 
 HEADERS = {"User-Agent" : "finscope project@finscope.com"}
-
+_REPO_ROOT = Path(__file__).resolve().parent.parent
+INDEX_DIR = _REPO_ROOT / "data" / "indexes"
 
 def get_cik(ticker):
     
@@ -71,7 +73,7 @@ def build_save_index(ticker):
     dimensions = embeddings.shape[1]
     index = faiss.IndexFlatIP(dimensions)
     index.add(embeddings)
-    os.makedirs("data/indexes", exist_ok=True)
-    faiss.write_index(index, f"data/indexes/{ticker}.index")
-    with open(f"data/indexes/{ticker}_chunks.pkl", "wb") as f:
+    INDEX_DIR.mkdir(parents=True, exist_ok=True)
+    faiss.write_index(index, str(INDEX_DIR / f"{ticker}.index"))
+    with open(str(INDEX_DIR / f"{ticker}_chunks.pkl"), "wb") as f:
         pickle.dump(chunks, f)
