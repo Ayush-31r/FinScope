@@ -32,6 +32,7 @@ def build_graph():
 
     return graph.compile()
 
-app = build_graph()
-result = app.invoke({"ticker":"AAPL", "errors":[]})
-print(result["analyst_brief"])
+if __name__ == "__main__":
+    app = build_graph()
+    result = app.invoke({"ticker":"AAPL", "errors":[]})
+    print(result["analyst_brief"])
