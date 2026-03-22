@@ -7,7 +7,7 @@ import os
 import time
 import logging
 from contextlib import asynccontextmanager
-
+import subprocess
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, field_validator
@@ -35,6 +35,7 @@ async def lifespan(app: FastAPI):
     logger.info("Pulling indexes from HuggingFace...")
     from hf_index_storage import pull_indexes
     pull_indexes()
+    print(subprocess.run(["ls", "-la", "/app/data/indexes"], capture_output=True, text=True).stdout, flush=True)
     os.makedirs("/app/data/indexes", exist_ok=True)
     for f in os.listdir("/app/data/indexes"):
         print(f"FOUND: {f}", flush=True)
