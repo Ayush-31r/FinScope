@@ -81,7 +81,7 @@ def pull_indexes() -> None:
             token=HF_TOKEN,
         )
 
-        shutil.move(downloaded, str(dest))
+        shutil.copy2(os.path.realpath(downloaded), str(dest))
 
     logger.info("Pulled %d files to %s", len(remote_files), LOCAL_INDEX_DIR)
 
