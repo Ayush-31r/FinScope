@@ -6,28 +6,32 @@ from nodes.orchestrator import orchestrator
 from nodes.synthesizer import synthesizer
 from langgraph.graph import StateGraph, END, START
 
-graph = StateGraph(AgentState)
 
-# NODES
-graph.add_node("orchestrator", orchestrator)
-graph.add_node("news_node", news_node)
-graph.add_node("rag_node", rag_node)
-graph.add_node("risk_node", risk_node)
-graph.add_node("synthesizer", synthesizer)
+def build_graph():
+    graph = StateGraph(AgentState)
 
-# EDGES
-graph.add_edge(START,"orchestrator")
+    # NODES
+    graph.add_node("orchestrator", orchestrator)
+    graph.add_node("news_node", news_node)
+    graph.add_node("rag_node", rag_node)
+    graph.add_node("risk_node", risk_node)
+    graph.add_node("synthesizer", synthesizer)
 
-graph.add_edge("orchestrator","news_node")
-graph.add_edge("orchestrator","rag_node")
-graph.add_edge("orchestrator","risk_node")
+    # EDGES
+    graph.add_edge(START,"orchestrator")
 
-graph.add_edge("news_node","synthesizer")
-graph.add_edge("rag_node","synthesizer")
-graph.add_edge("risk_node","synthesizer")
+    graph.add_edge("orchestrator","news_node")
+    graph.add_edge("orchestrator","rag_node")
+    graph.add_edge("orchestrator","risk_node")
 
-graph.add_edge("synthesizer",END)
+    graph.add_edge("news_node","synthesizer")
+    graph.add_edge("rag_node","synthesizer")
+    graph.add_edge("risk_node","synthesizer")
 
-app = graph.compile()
+    graph.add_edge("synthesizer",END)
+
+    return graph.compile()
+
+app = build_graph()
 result = app.invoke({"ticker":"AAPL", "errors":[]})
 print(result["analyst_brief"])
