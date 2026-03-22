@@ -13,13 +13,13 @@ const STACK = ["LangGraph", "Groq / Llama 3.3", "FAISS", "HuggingFace", "yFinanc
 
 function parseBrief(brief) {
   if (!brief) return [];
+  const re = /(\d+)\.\s+([^\n:]+):([\s\S]*?)(?=\d+\.\s|\s*$)/g;
   const sections = [];
-  const re = /#{1,3}\s*\d*\.?\s*(.+?)\n([\s\S]*?)(?=#{1,3}|\s*$)/g;
   let m;
   while ((m = re.exec(brief)) !== null)
-    sections.push({ title: m[1].trim(), body: m[2].trim() });
+    sections.push({ num: m[1], title: m[2].trim(), body: m[3].trim() });
   if (!sections.length)
-    return brief.split(/\n\n+/).filter(Boolean).map((b, i) => ({ title: `Section ${i + 1}`, body: b.trim() }));
+    return brief.split(/\n\n+/).filter(Boolean).map((b, i) => ({ num: i+1, title: `Section ${i+1}`, body: b.trim() }));
   return sections;
 }
 
@@ -64,7 +64,7 @@ body::before{
 .module-icon{width:28px;height:28px;border:1px solid;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:11px;font-weight:600;flex-shrink:0;}
 .module-name{font-family:var(--cond);font-size:13px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:4px;}
 .module-tech{font-family:var(--mono);font-size:10px;color:var(--muted);margin-bottom:10px;}
-.module-desc{font-size:12px;color:var(--muted2);line-height:1.6;}
+.module-desc{font-size:15px;color:var(--muted2);line-height:1.6;}
 .module-status{font-family:var(--mono);font-size:10px;margin-top:10px;height:14px;letter-spacing:0.05em;}
 .module-bar{position:absolute;bottom:0;left:0;height:2px;width:0;transition:width 0.8s ease;}
 .module.running .module-bar{width:100%;animation:barPulse 1.4s ease-in-out infinite;}
@@ -109,7 +109,7 @@ body::before{
 .sec-title{font-family:var(--cond);font-size:13px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;flex:1;}
 .sec-chev{font-size:10px;color:var(--muted);transition:transform 0.2s;flex-shrink:0;}
 .sec-chev.open{transform:rotate(90deg);}
-.sec-body{padding:16px 18px 18px 52px;font-size:13px;color:var(--muted2);line-height:1.8;border-top:1px solid var(--border);white-space:pre-wrap;}
+.sec-body{padding:20px 24px 24px 24px;font-size:16px;color:var(--muted2);line-height:1.9;border-top:1px solid var(--border);white-space:pre-wrap;}
 .raw-row{display:flex;justify-content:flex-end;margin-top:16px;}
 .raw-btn{background:transparent;border:1px solid var(--border);color:var(--muted);font-family:var(--mono);font-size:10px;letter-spacing:0.12em;text-transform:uppercase;padding:6px 14px;cursor:pointer;transition:all 0.15s;}
 .raw-btn:hover{border-color:var(--gold);color:var(--gold);}
