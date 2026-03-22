@@ -108,10 +108,11 @@ async def analyze(req: AnalyzeRequest):
     logger.info("Analysis for %s completed in %.1fs", ticker, elapsed)
 
     # news_result and risk_data are dicts — extract a summary line for the frontend
-    def _dict_summary(d: dict | None) -> str:
+    def _dict_summary(d) -> str:
         if not d:
             return "No output"
-        # grab the first string value found in the dict as the status line
+        if isinstance(d, list):
+            return f"{len(d)} articles retrieved" if d else "No output"
         for v in d.values():
             if isinstance(v, str) and v.strip():
                 return v.split("\n")[0][:120]

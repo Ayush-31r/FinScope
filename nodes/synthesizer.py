@@ -5,9 +5,9 @@ from config import MODEL_NAME, GROQ_API_KEY, MAX_TOKENS
 
 llm = ChatGroq(api_key=GROQ_API_KEY,model=MODEL_NAME,max_tokens=MAX_TOKENS)
 def synthesizer(state):
-    risk = state["risk_data"]
-    rag = state["rag_context"]
-    news = state["news_result"]
+    news = state.get("news_result", [])
+    rag = state.get("rag_context", "No SEC data available")
+    risk = state.get("risk_data", {})
 
     systemPrompt = """You are a quantitative financial analyst. You will be given recent news summaries, SEC filing excerpts, and a structured risk assessment for a stock. Write a professional analyst brief with exactly these five sections:
 
