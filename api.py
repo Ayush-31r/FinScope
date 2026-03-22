@@ -136,6 +136,17 @@ async def analyze(req: AnalyzeRequest):
         elapsed_seconds=elapsed,
     )
 
+# ── Serve React frontend ───────────────────────────────────────────────────────
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+
+if os.path.exists("frontend/dist"):
+    app.mount("/assets", StaticFiles(directory="frontend/dist/assets"), name="assets")
+
+    @app.get("/")
+    async def serve_frontend():
+        return FileResponse("frontend/dist/index.html")
+
 # ── Health check ───────────────────────────────────────────────────────────────
 @app.get("/health")
 async def health():
