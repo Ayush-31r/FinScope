@@ -2,9 +2,7 @@ import yfinance as yf
 from ddgs import DDGS
 
 def news_node(state):
-    ticker = state["ticker"]
-    stock = yf.Ticker(ticker)
-    company = stock.info["longName"]
+    company = state["company_name"]
 
     news_content = []
     with DDGS() as ddgs:

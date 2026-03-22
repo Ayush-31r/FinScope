@@ -3,8 +3,7 @@ import yfinance as yf
 
 def rag_node(state):
     ticker = state["ticker"]
-    stock = yf.Ticker(ticker)
-    company = stock.info["longName"]
+    company = state["company_name"]
     query = f"{company} revenue growth risk factors management outlook"
     rag_context = retrieve(ticker,query)
 
