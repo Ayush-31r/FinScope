@@ -1,7 +1,6 @@
-import requests,json
+import requests,os
 import faiss
 import pickle
-import numpy as np
 from bs4 import BeautifulSoup
 from sentence_transformers import SentenceTransformer
 from langchain_text_splitters import RecursiveCharacterTextSplitter
@@ -72,6 +71,7 @@ def build_save_index(ticker):
     dimensions = embeddings.shape[1]
     index = faiss.IndexFlatIP(dimensions)
     index.add(embeddings)
+    os.makedirs("data/indexes", exist_ok=True)
     faiss.write_index(index, f"data/indexes/{ticker}.index")
     with open(f"data/indexes/{ticker}_chunks.pkl", "wb") as f:
         pickle.dump(chunks, f)
