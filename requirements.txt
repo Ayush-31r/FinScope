@@ -13,3 +13,5 @@ sec-edgar-downloader
 beautifulsoup4
 requests
 huggingface_hub
+fastapi
+uvicorn
