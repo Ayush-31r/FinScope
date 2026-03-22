@@ -6,9 +6,7 @@ from rag.build_index import build_save_index
 from pathlib import Path
 
 
-_REPO_ROOT = Path(__file__).resolve().parent.parent
-INDEX_DIR = _REPO_ROOT / "data" / "indexes"
-print(f"INDEX_DIR resolved to: {INDEX_DIR}", flush=True)
+INDEX_DIR = Path("/app/data/indexes")
 
 def retrieve(ticker, query, k=3):
     index_path = INDEX_DIR / f"{ticker}.index"

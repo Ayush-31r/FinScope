@@ -7,8 +7,7 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 from pathlib import Path
 
 HEADERS = {"User-Agent" : "finscope project@finscope.com"}
-_REPO_ROOT = Path(__file__).resolve().parent.parent
-INDEX_DIR = _REPO_ROOT / "data" / "indexes"
+INDEX_DIR = Path("/app/data/indexes")
 
 def get_cik(ticker):
     
