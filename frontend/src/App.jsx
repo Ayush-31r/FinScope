@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 
-const API_BASE = import.meta.env.VITE_API_URL ?? "http://localhost:8000";
+const API_BASE = import.meta.env.VITE_API_URL ?? "";
 
 const AGENTS = [
   { id: "news", label: "News Retrieval", tag: "01", tech: "DuckDuckGo Search", desc: "Scans live financial news, press releases, and market sentiment signals for the ticker.", color: "#C8922A" },
