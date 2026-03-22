@@ -35,6 +35,10 @@ async def lifespan(app: FastAPI):
     logger.info("Pulling indexes from HuggingFace...")
     from hf_index_storage import pull_indexes
     pull_indexes()
+    os.makedirs("/app/data/indexes", exist_ok=True)
+    for f in os.listdir("/app/data/indexes"):
+        print(f"FOUND: {f}", flush=True)
+
     logger.info("Indexes ready.")
     logger.info("Compiling LangGraph pipeline...")
     graph = build_graph()
