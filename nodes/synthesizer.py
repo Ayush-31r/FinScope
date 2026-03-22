@@ -1,9 +1,9 @@
 from langchain_groq import ChatGroq
 from langchain_core.messages import SystemMessage, HumanMessage
-from config import MODEL_NAME, GROQ_API_KEY
+from config import MODEL_NAME, GROQ_API_KEY, MAX_TOKENS
 
 
-llm = ChatGroq(api_key=GROQ_API_KEY,model=MODEL_NAME)
+llm = ChatGroq(api_key=GROQ_API_KEY,model=MODEL_NAME,max_tokens=MAX_TOKENS)
 def synthesizer(state):
     risk = state["risk_data"]
     rag = state["rag_context"]
