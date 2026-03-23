@@ -1,10 +1,11 @@
 import os
+import gc
 import faiss
 import pickle
-from sentence_transformers import SentenceTransformer
+import numpy as np
+from huggingface_hub import InferenceClient
 from rag.build_index import build_save_index
 from pathlib import Path
-
 
 INDEX_DIR = Path("/app/data/indexes")
 
@@ -19,9 +20,10 @@ def retrieve(ticker, query, k=3):
     with open(str(INDEX_DIR / f"{ticker}_chunks.pkl"), "rb") as f:
         chunks = pickle.load(f)
 
-    model = SentenceTransformer("all-MiniLM-L6-v2")
-    query_embeddings = model.encode([query]).astype("float32")
-    del model
+    hf = InferenceClient(token=os.environ.get("HF_TOKEN"))
+    query_embeddings = np.array(hf.feature_extraction([query], model="sentence-transformers/all-MiniLM-L6-v2"), dtype="float32")
+    del hf
+    gc.collect()
 
     faiss.normalize_L2(query_embeddings)
     distances, indices = index.search(query_embeddings, k)

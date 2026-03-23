@@ -1,11 +1,9 @@
-torch --index-url https://download.pytorch.org/whl/cpu
 langgraph
 langchain
 langchain-groq
 langchain-community
 fastapi
 uvicorn[standard]
-sentence-transformers
 faiss-cpu
 yfinance
 ddgs

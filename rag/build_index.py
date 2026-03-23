@@ -1,8 +1,9 @@
-import requests,os
+import requests,os,gc
 import faiss
 import pickle
+import numpy as np
 from bs4 import BeautifulSoup
-from sentence_transformers import SentenceTransformer
+from huggingface_hub import InferenceClient
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from pathlib import Path
 
@@ -68,15 +69,20 @@ def build_save_index(ticker):
     spliter = RecursiveCharacterTextSplitter(chunk_size = 1000,chunk_overlap = 200)
     chunks = spliter.split_text(text)
 
-    model = SentenceTransformer("all-MiniLM-L6-v2")
-    embeddings = model.encode(chunks)
-    embeddings = embeddings.astype("float32")
+    hf = InferenceClient(token=os.environ.get("HF_TOKEN"))
+    embeddings = np.array(hf.feature_extraction(chunks, model="sentence-transformers/all-MiniLM-L6-v2"), dtype="float32")
+    del hf, text
+    gc.collect()
 
     faiss.normalize_L2(embeddings)
     dimensions = embeddings.shape[1]
     index = faiss.IndexFlatIP(dimensions)
     index.add(embeddings)
+    del embeddings
+    gc.collect()
     INDEX_DIR.mkdir(parents=True, exist_ok=True)
     faiss.write_index(index, str(INDEX_DIR / f"{ticker}.index"))
     with open(str(INDEX_DIR / f"{ticker}_chunks.pkl"), "wb") as f:
         pickle.dump(chunks, f)
+    del chunks
+    gc.collect()
