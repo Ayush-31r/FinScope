@@ -1,4 +1,4 @@
-import yfinance as yf,json,os
+import yfinance as yf,json,os,re
 from langchain_groq import ChatGroq
 from langchain_core.messages import SystemMessage, HumanMessage
 from config import GROQ_API_KEY, MODEL_NAME
@@ -24,7 +24,9 @@ def risk_node(state):
     user_prompt = f"Analyze this stock: {json.dumps(metrics)}"
 
     response = llm.invoke([SystemMessage(content = system_prompt),HumanMessage(content=user_prompt)])
-    raw = response.content.strip().strip("```json").strip("```").strip()
-    risk_assessment = json.loads(raw)
+    match = re.search(r'\{.*\}', response.content, re.DOTALL)
+    if not match:
+        raise ValueError(f"No JSON object found in LLM response: {response.content}")
+    risk_assessment = json.loads(match.group())
 
     return {"risk_data" : risk_assessment}
