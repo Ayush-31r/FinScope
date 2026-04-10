@@ -1,4 +1,6 @@
 import requests,os,gc
+from dotenv import load_dotenv
+load_dotenv()
 import faiss
 import pickle
 import numpy as np
@@ -45,13 +47,24 @@ def get_filing_url(cik):
 
     return ten_k_url, ten_q_url
 
-def fetch_and_clean(url):
-    
-    response = requests.get(url,headers=HEADERS)
-    soup = BeautifulSoup(response.content,"html.parser")
-    text = soup.get_text()
-    clean_text = " ".join(text.split())
+def table_to_text(table):
+    rows = []
+    for tr in table.find_all("tr"):
+        cells = [td.get_text(separator=" ", strip=True) for td in tr.find_all(["td", "th"])]
+        if any(cells):
+            rows.append(" | ".join(cells))
+    return "\n".join(rows)
 
+
+def fetch_and_clean(url):
+    response = requests.get(url, headers=HEADERS)
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    for table in soup.find_all("table"):
+        table.replace_with(table_to_text(table) + "\n")
+
+    text = soup.get_text(separator=" ")
+    clean_text = " ".join(text.split())
     return clean_text
 
 

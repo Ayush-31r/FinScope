@@ -13,7 +13,7 @@ def synthesizer(state):
 
                     1. Company Snapshot — one line summary
                     2. Recent News Sentiment — what the news suggests
-                    3. SEC Filings Insight — key findings from 10-K/10-Q
+                    3. SEC Filings Insight — key findings from 10-K/10-Q; the excerpts contain structured financial tables (income statement, balance sheet, cash flow) in pipe-delimited format — extract and cite specific figures (revenue, net income, margins, YoY changes) where present
                     4. Risk Assessment — risk level, key risks, strengths
                     5. Final Verdict — recommendation with one line reasoning
 
@@ -21,7 +21,8 @@ def synthesizer(state):
                     - Professional, concise tone
                     - Prose only, no bullet points
                     - No disclaimers
-                    - 300-400 words maximum"""
+                    - 300-400 words maximum
+                    - Where financial figures are available from SEC tables, use exact numbers rather than vague characterizations"""
     userPrompt = f"""Give a analyst brief for the stock with
                     news summary : {news}
                     SEC-Filings : {rag}
